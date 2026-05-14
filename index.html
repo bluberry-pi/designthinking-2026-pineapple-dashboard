@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idea Evaluation Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-1: #38bdf8;
+            --accent-2: #c084fc;
+            --accent-3: #4ade80;
+            --accent-4: #fbbf24;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(192, 132, 252, 0.15), transparent 25%);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-1);
+            color: #0f172a;
+            border-color: var(--accent-1);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media(min-width: 900px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.8s ease-out backwards;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 0.5rem;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .idea-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .idea-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        .idea-list::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+        }
+        .idea-list::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+
+        .idea-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 0.75rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .idea-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .idea-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--accent-1);
+        }
+
+        .idea-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .badge {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        .feature-set {
+            background: rgba(255,255,255,0.02);
+            border-left: 4px solid;
+            padding: 1rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin-bottom: 1rem;
+        }
+        .feature-set:nth-child(1) { border-color: var(--accent-1); }
+        .feature-set:nth-child(2) { border-color: var(--accent-2); }
+        .feature-set:nth-child(3) { border-color: var(--accent-3); }
+
+        .feature-set h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .feature-set p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* --- Implementation Framework Styles --- */
+        .intro-section {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 3rem auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .intro-section h2 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .intro-section p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1.05rem;
+            margin: 0;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        @media(max-width: 768px) {
+            .timeline { padding-left: 1rem; }
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .timeline-card {
+            position: relative;
+            margin-bottom: 4rem;
+        }
+        .timeline-card::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 2rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background: var(--bg-color);
+            border: 3px solid var(--accent-1);
+            z-index: 1;
+            transform: translateX(-50%);
+        }
+        @media(max-width: 768px) {
+            .timeline-card::before { left: -1rem; transform: translateX(-25%); }
+        }
+        .timeline-card:nth-child(2)::before { border-color: var(--accent-2); }
+        .timeline-card:nth-child(3)::before { border-color: var(--accent-3); }
+
+        .phase-badge {
+            position: absolute;
+            top: -1.2rem;
+            left: 2rem;
+            background: var(--bg-color);
+            padding: 0.3rem 1rem;
+            border-radius: 2rem;
+            border: 1px solid var(--glass-border);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+        @media(max-width: 768px) {
+            .phase-badge { left: 1rem; }
+        }
+        .timeline-card:nth-child(2) .phase-badge { color: var(--accent-2); }
+        .timeline-card:nth-child(3) .phase-badge { color: var(--accent-3); }
+
+        .persona-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .chip.student { color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); }
+        .chip.teacher { color: #c084fc; border-color: rgba(192, 132, 252, 0.3); }
+        .chip.employee { color: #4ade80; border-color: rgba(74, 222, 128, 0.3); }
+        .chip.online { color: #facc15; border-color: rgba(250, 204, 21, 0.3); }
+        .chip.offline { color: #f87171; border-color: rgba(248, 113, 113, 0.3); }
+        .chip.hybrid { color: #818cf8; border-color: rgba(129, 140, 248, 0.3); }
+
+        .subsection {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .subsection:hover {
+            transform: translateX(5px);
+            border-color: rgba(255,255,255,0.15);
+        }
+        .subsection h4 {
+            margin: 0 0 0.75rem 0;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .subsection p, .subsection ul {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        .subsection ul { padding-left: 1.25rem; }
+        .subsection strong {
+            color: var(--text-primary);
+            font-weight: 600;
+            background: rgba(255,255,255,0.1);
+            padding: 0 0.3rem;
+            border-radius: 0.2rem;
+        }
+
+        .bna-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+            padding-top: 1.5rem;
+        }
+        @media(max-width: 768px) {
+            .bna-container { grid-template-columns: 1fr; }
+        }
+        .bna-card {
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid;
+            transition: transform 0.2s;
+        }
+        .bna-card:hover { transform: translateY(-3px); }
+        .bna-card.before {
+            background: rgba(248, 113, 113, 0.05);
+            border-color: rgba(248, 113, 113, 0.2);
+        }
+        .bna-card.before h4 { color: #f87171; margin: 0 0 0.75rem 0; font-size: 1.1rem; }
+        .bna-card.after {
+            background: rgba(74, 222, 128, 0.05);
+            border-color: rgba(74, 222, 128, 0.2);
+        }
+        .bna-card.after h4 { color: #4ade80; margin: 0 0 0.75rem 0; font-size: 1.1rem; }
+        .bna-card ul {
+            margin: 0;
+            padding-left: 1.25rem;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        /* Horizontal Timeline */
+        .day-in-life-section {
+            margin-top: 5rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--glass-border);
+        }
+        .day-in-life-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 3rem;
+            background: linear-gradient(to right, var(--accent-3), var(--accent-1));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .horizontal-timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            padding-bottom: 2rem;
+            overflow-x: auto;
+            gap: 1.5rem;
+        }
+        .horizontal-timeline::before {
+            content: '';
+            position: absolute;
+            top: 1.5rem;
+            left: 2rem;
+            right: 2rem;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.2), rgba(192, 132, 252, 0.5), rgba(74, 222, 128, 0.2));
+            z-index: 0;
+        }
+        @media(max-width: 900px) {
+            .horizontal-timeline { flex-direction: column; }
+            .horizontal-timeline::before {
+                top: 0; bottom: 0; left: 1.5rem; right: auto; width: 3px; height: auto;
+                background: linear-gradient(180deg, rgba(56, 189, 248, 0.2), rgba(192, 132, 252, 0.5), rgba(74, 222, 128, 0.2));
+            }
+        }
+        .ht-step {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+        @media(max-width: 900px) {
+            .ht-step { display: flex; align-items: flex-start; text-align: left; gap: 1.5rem; }
+        }
+        .ht-icon {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto 1rem auto;
+            background: var(--bg-color);
+            border: 2px solid var(--accent-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            flex-shrink: 0;
+        }
+        @media(max-width: 900px) {
+            .ht-icon { margin: 0; }
+        }
+        .ht-step:hover .ht-icon {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.8);
+        }
+        .ht-step:nth-child(2) .ht-icon { border-color: var(--accent-2); box-shadow: 0 0 15px rgba(192, 132, 252, 0.5); }
+        .ht-step:nth-child(2):hover .ht-icon { box-shadow: 0 0 25px rgba(192, 132, 252, 0.8); }
+        .ht-step:nth-child(3) .ht-icon { border-color: var(--accent-3); box-shadow: 0 0 15px rgba(74, 222, 128, 0.5); }
+        .ht-step:nth-child(3):hover .ht-icon { box-shadow: 0 0 25px rgba(74, 222, 128, 0.8); }
+        .ht-step:nth-child(4) .ht-icon { border-color: var(--accent-4); box-shadow: 0 0 15px rgba(251, 191, 36, 0.5); }
+        .ht-step:nth-child(4):hover .ht-icon { box-shadow: 0 0 25px rgba(251, 191, 36, 0.8); }
+
+        .ht-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            text-align: left;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s, border-color 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            flex: 1;
+        }
+        .ht-step:hover .ht-card {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .ht-card h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+        .ht-card ul {
+            margin: 0;
+            padding-left: 1.25rem;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .final-outcome {
+            margin-top: 4rem;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.05), rgba(192, 132, 252, 0.05));
+            border: 1px solid rgba(192, 132, 252, 0.2);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(192, 132, 252, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .final-outcome::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at center, rgba(192, 132, 252, 0.1) 0%, transparent 50%);
+            animation: rotateGlow 15s linear infinite;
+        }
+        @keyframes rotateGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .final-outcome h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1.5rem;
+            color: #f8fafc;
+            position: relative;
+            z-index: 1;
+        }
+        .final-outcome p { position: relative; z-index: 1; }
+        .final-outcome-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        .outcome-item {
+            background: rgba(0,0,0,0.3);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #f8fafc;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .outcome-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: rgba(192, 132, 252, 0.3);
+        }
+        .outcome-item span { color: var(--accent-3); font-size: 1.5rem; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Idea Evaluation Dashboard</h1>
+        <p class="subtitle">High Feasibility & Desirability Ideas (Short/Medium Term)</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('matrices', event)">Evaluation Matrices</button>
+        <button class="tab-btn" onclick="switchTab('implementation', event)">Implementation Guide</button>
+    </div>
+
+    <!-- Matrices View -->
+    <div id="view-matrices" class="view active">
+        <div class="container">
+            <!-- Filtered Ideas List -->
+            <div class="card delay-1">
+                <h2>Filtered Ideas</h2>
+                <ul class="idea-list" id="ideaList">
+                    <!-- Populated by JS -->
+                </ul>
+            </div>
+
+            <!-- Filtered Ideas Matrix -->
+            <div class="card delay-2">
+                <h2>Value vs Effort Matrix (Ideas)</h2>
+                <div class="chart-container">
+                    <canvas id="ideasMatrix"></canvas>
+                </div>
+            </div>
+
+            <!-- Feature Sets Definition -->
+            <div class="card delay-3">
+                <h2>Combined Solutions (Feature Sets)</h2>
+                <div class="feature-set">
+                    <h3 style="color: var(--accent-1)">1. Unified Platforms & Workspaces</h3>
+                    <p>Consolidating communication, materials, updates, and digital workspaces into single sources of truth.</p>
+                </div>
+                <div class="feature-set">
+                    <h3 style="color: var(--accent-2)">2. Calendars & Roadmaps</h3>
+                    <p>Providing clear visibility into workload, course roadmaps, and shared schedules across all personas.</p>
+                </div>
+                <div class="feature-set">
+                    <h3 style="color: var(--accent-3)">3. Health, Breaks & Boundaries</h3>
+                    <p>Establishing mandatory breaks, limiting back-to-back sessions, and protecting offline hours.</p>
+                </div>
+            </div>
+
+            <!-- Features Matrix -->
+            <div class="card delay-4">
+                <h2>Value vs Effort Matrix (Solutions)</h2>
+                <div class="chart-container">
+                    <canvas id="featuresMatrix"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Implementation View -->
+    <div id="view-implementation" class="view">
+        <div class="container">
+            
+            <div class="intro-section full-width delay-1">
+                <h2>Implementation Framework</h2>
+                <p>This guide explains how the proposed solutions can realistically be integrated into academic and workplace environments. Instead of offering generic recommendations, the system focuses on <strong>behavioral routines</strong>, <strong>platform structures</strong>, <strong>scheduling methods</strong>, and <strong>sustainable daily practices</strong> that reduce cognitive overload, burnout, communication fragmentation, and scheduling conflicts.</p>
+            </div>
+
+            <div class="timeline full-width">
+                <!-- Phase 1 -->
+                <div class="card timeline-card delay-2">
+                    <span class="phase-badge">Phase 1</span>
+                    <h2 style="border-bottom-color: var(--accent-1); margin-top: 1rem; margin-left: 0.5rem;">1. Unified Platforms & Workspaces</h2>
+                    
+                    <p style="color: var(--text-secondary); margin: -0.5rem 0 1.5rem 0.5rem; font-size: 0.95rem;">Reducing communication fragmentation and cognitive overload by creating a centralized digital ecosystem.</p>
+
+                    <div class="persona-chips">
+                        <span class="chip student">Student</span>
+                        <span class="chip teacher">Teacher</span>
+                        <span class="chip employee">Software Employee</span>
+                        <span class="chip hybrid">Hybrid</span>
+                        <span class="chip online">Online</span>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>⚠️ Problem Being Solved</h4>
+                        <p>Students, teachers, and employees frequently switch between multiple communication and workflow platforms such as WhatsApp, email, LMS portals, Zoom, Slack, Teams, and shared drives. This fragmentation causes <strong>missed updates</strong>, <strong>duplicate work</strong>, confusion, notification fatigue, and <strong>mental overload</strong>.</p>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>⚙️ Realistic Implementation</h4>
+                        <p><strong>PHASE 1 — Platform Audit</strong></p>
+                        <ul>
+                            <li>Identify all currently used tools</li>
+                            <li>Map where announcements, files, recordings, meetings, and submissions happen</li>
+                            <li>Detect duplicate communication channels</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>PHASE 2 — Select a Single Source of Truth</strong></p>
+                        <p>Institutions and companies choose one mandatory primary platform. Examples:</p>
+                        <ul>
+                            <li>Google Classroom</li>
+                            <li>Moodle</li>
+                            <li>Microsoft Teams</li>
+                            <li>Slack</li>
+                            <li>Notion</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>PHASE 3 — Gradual Migration</strong></p>
+                        <ul>
+                            <li>Week 1 &rarr; announcements migrate</li>
+                            <li>Week 2 &rarr; learning materials migrate</li>
+                            <li>Week 3 &rarr; recordings/tasks migrate</li>
+                            <li>Week 4 &rarr; redundant platforms removed</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>🗓️ Daily Routine Integration</h4>
+                        <p><strong>Students & Employees:</strong></p>
+                        <ul>
+                            <li>Check one dashboard every morning</li>
+                            <li>Store all files in standardized folders</li>
+                            <li>Use one notification system</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Teachers & Managers:</strong></p>
+                        <ul>
+                            <li>Upload materials within fixed deadlines</li>
+                            <li>Use standardized announcement templates</li>
+                            <li>Avoid duplicate posting across apps</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>🛠️ Methods Integrated Into Daily Life</h4>
+                        <ul>
+                            <li>Morning dashboard check ritual</li>
+                            <li>Weekly workspace cleanup</li>
+                            <li>Standardized file naming systems</li>
+                            <li>Shared folder structures organized by project/topic/date</li>
+                            <li>Single-click access dashboards</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>📈 Expected Impact</h4>
+                        <ul>
+                            <li>Reduced missed deadlines</li>
+                            <li>Lower cognitive overload</li>
+                            <li>Faster onboarding</li>
+                            <li>Reduced communication confusion</li>
+                            <li>Better information accessibility</li>
+                        </ul>
+                    </div>
+
+                    <div class="bna-container">
+                        <div class="bna-card before">
+                            <h4>Before</h4>
+                            <ul>
+                                <li>Multiple disjointed apps</li>
+                                <li>Missed deadlines & updates</li>
+                                <li>Constant scattered notifications</li>
+                            </ul>
+                        </div>
+                        <div class="bna-card after">
+                            <h4>After</h4>
+                            <ul>
+                                <li>One unified dashboard</li>
+                                <li>Structured, predictable workflow</li>
+                                <li>Reduced mental overload</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="card timeline-card delay-3">
+                    <span class="phase-badge">Phase 2</span>
+                    <h2 style="border-bottom-color: var(--accent-2); margin-top: 1rem; margin-left: 0.5rem;">2. Calendars & Roadmaps</h2>
+                    
+                    <p style="color: var(--text-secondary); margin: -0.5rem 0 1.5rem 0.5rem; font-size: 0.95rem;">Creating workload transparency and reducing deadline collisions through synchronized planning systems.</p>
+
+                    <div class="persona-chips">
+                        <span class="chip student">Student</span>
+                        <span class="chip teacher">Teacher</span>
+                        <span class="chip employee">Software Employee</span>
+                        <span class="chip offline">Offline</span>
+                        <span class="chip hybrid">Hybrid</span>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>⚠️ Problem Being Solved</h4>
+                        <p>Students and employees often experience overlapping deadlines, sudden schedule changes, unclear semester plans, and unpredictable workloads. This creates stress, burnout, poor time management, and reduced productivity.</p>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>⚙️ Realistic Implementation</h4>
+                        <p><strong>PHASE 1 — Shared Calendar Infrastructure</strong></p>
+                        <ul>
+                            <li>Deploy centralized calendar systems accessible to all personas</li>
+                            <li>Integrate exams, assignments, meetings, project deadlines, and events</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>PHASE 2 — Workload Visibility Rules</strong></p>
+                        <ul>
+                            <li>Teachers/managers must check shared calendars before assigning major work</li>
+                            <li>Prevent deadline clustering during high-stress periods</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>PHASE 3 — Roadmap Standardization</strong></p>
+                        <ul>
+                            <li>Publish semester/course/project roadmaps at the start of each cycle</li>
+                            <li>Include milestones, deliverables, revision weeks, and buffer periods</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>🗓️ Daily Routine Integration</h4>
+                        <p><strong>Students:</strong></p>
+                        <ul>
+                            <li>Weekly Sunday planning sessions</li>
+                            <li>Daily deadline review habit</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Teachers:</strong></p>
+                        <ul>
+                            <li>Upload schedules and assessments early</li>
+                            <li>Avoid sudden task additions</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Employees:</strong></p>
+                        <ul>
+                            <li>Begin workdays by checking shared sprint/task calendars</li>
+                            <li>Use workload indicators before accepting meetings</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>🛠️ Methods Integrated Into Daily Life</h4>
+                        <ul>
+                            <li>Color-coded calendar systems</li>
+                            <li>Automated reminders</li>
+                            <li>Weekly review rituals</li>
+                            <li>Shared visibility dashboards</li>
+                            <li>Buffer-week planning systems</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>📈 Expected Impact</h4>
+                        <ul>
+                            <li>Reduced scheduling conflicts</li>
+                            <li>Better time management</li>
+                            <li>Lower stress during peak workload periods</li>
+                            <li>Increased predictability</li>
+                            <li>Improved productivity</li>
+                        </ul>
+                    </div>
+
+                    <div class="bna-container">
+                        <div class="bna-card before">
+                            <h4>Before</h4>
+                            <ul>
+                                <li>Unexpected deadline pile-ups</li>
+                                <li>Hidden workload across teams/classes</li>
+                                <li>Constant reactive firefighting</li>
+                            </ul>
+                        </div>
+                        <div class="bna-card after">
+                            <h4>After</h4>
+                            <ul>
+                                <li>Predictable timeline mapping</li>
+                                <li>Proactive workload balancing</li>
+                                <li>Calm, structured prioritization</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="card timeline-card delay-4">
+                    <span class="phase-badge">Phase 3</span>
+                    <h2 style="border-bottom-color: var(--accent-3); margin-top: 1rem; margin-left: 0.5rem;">3. Health, Breaks & Boundaries</h2>
+                    
+                    <p style="color: var(--text-secondary); margin: -0.5rem 0 1.5rem 0.5rem; font-size: 0.95rem;">Reducing burnout, screen fatigue, and mental exhaustion through structured recovery systems and healthier scheduling practices.</p>
+
+                    <div class="persona-chips">
+                        <span class="chip student">Student</span>
+                        <span class="chip employee">Software Employee</span>
+                        <span class="chip online">Online</span>
+                        <span class="chip offline">Offline</span>
+                        <span class="chip hybrid">Hybrid</span>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>⚠️ Problem Being Solved</h4>
+                        <p>Continuous meetings, long classes, excessive screen exposure, and after-hours communication contribute to burnout, eye strain, fatigue, reduced concentration, and poor work-life balance.</p>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>⚙️ Realistic Implementation</h4>
+                        <p><strong>PHASE 1 — System-Enforced Break Buffers</strong></p>
+                        <ul>
+                            <li>Configure meetings/classes to automatically end 5–10 minutes early</li>
+                            <li>Prevent back-to-back scheduling</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>PHASE 2 — Notification Boundaries</strong></p>
+                        <ul>
+                            <li>Silence non-critical notifications outside work/study hours</li>
+                            <li>Introduce ‘Right to Disconnect’ policies</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>PHASE 3 — Wellness Integration</strong></p>
+                        <ul>
+                            <li>Add scheduled movement/stretch reminders</li>
+                            <li>Introduce no-meeting lunch periods</li>
+                            <li>Create designated focus hours</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>🗓️ Daily Routine Integration</h4>
+                        <p><strong>Students:</strong></p>
+                        <ul>
+                            <li>Stretch/walk between classes</li>
+                            <li>Follow Pomodoro-style study sessions</li>
+                            <li>Use scheduled offline breaks</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Teachers:</strong></p>
+                        <ul>
+                            <li>Include transition periods between lectures</li>
+                            <li>Reduce unnecessary meetings</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Employees:</strong></p>
+                        <ul>
+                            <li>Maintain protected focus blocks</li>
+                            <li>Avoid responding to non-urgent messages after work hours</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>🛠️ Methods Integrated Into Daily Life</h4>
+                        <ul>
+                            <li>Auto-ending meetings at 50 minutes</li>
+                            <li>Eye strain reminders</li>
+                            <li>Movement prompts</li>
+                            <li>Scheduled digital detox periods</li>
+                            <li>Focus mode integrations</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>📈 Expected Impact</h4>
+                        <ul>
+                            <li>Reduced burnout</li>
+                            <li>Better concentration</li>
+                            <li>Improved work-life balance</li>
+                            <li>Healthier screen-time habits</li>
+                            <li>Increased long-term productivity</li>
+                        </ul>
+                    </div>
+
+                    <div class="bna-container">
+                        <div class="bna-card before">
+                            <h4>Before</h4>
+                            <ul>
+                                <li>Back-to-back endless meetings</li>
+                                <li>Severe burnout and screen fatigue</li>
+                                <li>Unhealthy after-hours work pressure</li>
+                            </ul>
+                        </div>
+                        <div class="bna-card after">
+                            <h4>After</h4>
+                            <ul>
+                                <li>Built-in automated recovery buffers</li>
+                                <li>Sustained daily energy & focus</li>
+                                <li>Strictly protected personal boundaries</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day in the Life Section -->
+            <div class="day-in-life-section full-width delay-4">
+                <h2>Day in the Life After Implementation</h2>
+                
+                <div class="horizontal-timeline">
+                    <!-- Morning -->
+                    <div class="ht-step">
+                        <div class="ht-icon">🌅</div>
+                        <div class="ht-card">
+                            <h4>Morning</h4>
+                            <ul>
+                                <li>User checks unified dashboard</li>
+                                <li>All deadlines/tasks visible in one place</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Midday -->
+                    <div class="ht-step">
+                        <div class="ht-icon">☀️</div>
+                        <div class="ht-card">
+                            <h4>Midday</h4>
+                            <ul>
+                                <li>Shared calendars prevent workload overload</li>
+                                <li>Balanced scheduling reduces stress</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Afternoon -->
+                    <div class="ht-step">
+                        <div class="ht-icon">☕</div>
+                        <div class="ht-card">
+                            <h4>Afternoon</h4>
+                            <ul>
+                                <li>System-enforced breaks reduce fatigue</li>
+                                <li>Focus blocks improve productivity</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Evening -->
+                    <div class="ht-step">
+                        <div class="ht-icon">🌙</div>
+                        <div class="ht-card">
+                            <h4>Evening</h4>
+                            <ul>
+                                <li>Notifications automatically silenced</li>
+                                <li>Better work-life balance</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="final-outcome">
+                    <h3>Final Outcome</h3>
+                    <p style="color: var(--text-secondary); max-width: 650px; margin: 0 auto; line-height: 1.6;">By aligning platforms, standardizing calendars, and enforcing boundaries, individuals experience a truly human-centered, predictable workflow.</p>
+                    <div class="final-outcome-grid">
+                        <div class="outcome-item"><span>✔</span> Reduced stress</div>
+                        <div class="outcome-item"><span>✔</span> Improved productivity</div>
+                        <div class="outcome-item"><span>✔</span> Better mental health</div>
+                        <div class="outcome-item"><span>✔</span> Structured daily life</div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        // Tab switching logic
+        function switchTab(tabId, event) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            document.getElementById('view-' + tabId).classList.add('active');
+        }
+
+        // Raw Data Extracted from Excel
+        const rawData = [
+            {"Persona": "Student", "Mode": "Offline", "Top Idea": "Add mandatory breaks between classes", "Feasibility": "High", "Desirability": "High", "Viability": "High", "Completion Expectation": "Short-Term"},
+            {"Persona": "Student", "Mode": "Offline", "Top Idea": "Share a clear semester workload calendar", "Feasibility": "High", "Desirability": "High", "Viability": "High", "Completion Expectation": "Short-Term"},
+            {"Persona": "Teacher", "Mode": "Online", "Top Idea": "Use one central platform for all materials, updates, and recordings", "Feasibility": "High", "Desirability": "High", "Viability": "High", "Completion Expectation": "Medium-Term"},
+            {"Persona": "Teacher", "Mode": "Online", "Top Idea": "Maintain a structured course roadmap and shared class calendar", "Feasibility": "High", "Desirability": "High", "Viability": "High", "Completion Expectation": "Short-Term"},
+            {"Persona": "Teacher", "Mode": "Hybrid", "Top Idea": "Use one official communication platform with standardized templates", "Feasibility": "High", "Desirability": "High", "Viability": "High", "Completion Expectation": "Short-Term"},
+            {"Persona": "Employee", "Mode": "Offline", "Top Idea": "Mandatory short breaks every 1-2 hours & limit back-to-back meetings", "Feasibility": "High", "Desirability": "High", "Viability": "High", "Completion Expectation": "Short-Term"},
+            {"Persona": "Employee", "Mode": "Online", "Top Idea": "Set fixed working hours and disable after-hours notifications", "Feasibility": "High", "Desirability": "High", "Viability": "High", "Completion Expectation": "Short-Term"},
+            {"Persona": "Employee", "Mode": "Hybrid", "Top Idea": "Maintain a shared digital workspace (single source of truth)", "Feasibility": "High", "Desirability": "High", "Viability": "High", "Completion Expectation": "Medium-Term"},
+            {"Persona": "Employee", "Mode": "Hybrid", "Top Idea": "Use one primary communication platform and document key decisions", "Feasibility": "High", "Desirability": "High", "Viability": "High", "Completion Expectation": "Short-Term"}
+        ];
+
+        // Scoring utility
+        const score = (val, type) => {
+            const map = { "High": 3, "Medium": 2, "Low": 1 };
+            const timeMap = { "Immediate": 1, "Short-Term": 2, "Medium-Term": 3, "Long-Term": 4 };
+            if (type === 'time') return timeMap[val] || 2;
+            if (type === 'effort') return (map[val] === 3 ? 1 : map[val] === 2 ? 2 : 3);
+            return map[val] || 2;
+        };
+
+        // Process data to calculate Value and Effort
+        const processedIdeas = rawData.map(idea => {
+            const value = (score(idea.Desirability, 'value') + score(idea.Viability, 'value')) / 2;
+            const effort = (score(idea.Feasibility, 'effort') + score(idea["Completion Expectation"], 'time')) / 2;
+            
+            const jitterX = (Math.random() - 0.5) * 0.2;
+            const jitterY = (Math.random() - 0.5) * 0.1;
+
+            return {
+                ...idea,
+                value: value + jitterY,
+                effort: effort + jitterX
+            };
+        });
+
+        // Render List
+        const listEl = document.getElementById('ideaList');
+        processedIdeas.forEach(idea => {
+            const li = document.createElement('li');
+            li.className = 'idea-item';
+            li.innerHTML = `
+                <div class="idea-title">${idea["Top Idea"]}</div>
+                <div class="idea-meta">
+                    <span class="badge">${idea.Persona}</span>
+                    <span class="badge">${idea["Completion Expectation"]}</span>
+                </div>
+            `;
+            listEl.appendChild(li);
+        });
+
+        // Common Chart Options
+        const getChartOptions = (title) => ({
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 12,
+                    callbacks: {
+                        label: (ctx) => {
+                            const data = ctx.raw;
+                            return data.label.length > 50 ? data.label.substring(0, 50) + '...' : data.label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: 'Effort (Lower is Better)', color: '#94a3b8' },
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: '#94a3b8' },
+                    min: 0.5,
+                    max: 3.5
+                },
+                y: {
+                    title: { display: true, text: 'Value (Higher is Better)', color: '#94a3b8' },
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: '#94a3b8' },
+                    min: 1.5,
+                    max: 3.5
+                }
+            }
+        });
+
+        // Chart 1: Ideas Matrix
+        const ctxIdeas = document.getElementById('ideasMatrix').getContext('2d');
+        new Chart(ctxIdeas, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Ideas',
+                    data: processedIdeas.map(i => ({
+                        x: i.effort,
+                        y: i.value,
+                        label: i["Top Idea"]
+                    })),
+                    backgroundColor: '#38bdf8',
+                    borderColor: '#0284c7',
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: getChartOptions('Ideas')
+        });
+
+        // Combine into 3 Feature Sets
+        const features = [
+            {
+                name: "Unified Platforms & Workspaces",
+                ideas: [
+                    "Use one central platform for all materials, updates, and recordings",
+                    "Use one official communication platform with standardized templates",
+                    "Maintain a shared digital workspace (single source of truth)",
+                    "Use one primary communication platform and document key decisions"
+                ],
+                color: '#38bdf8'
+            },
+            {
+                name: "Calendars & Roadmaps",
+                ideas: [
+                    "Share a clear semester workload calendar",
+                    "Maintain a structured course roadmap and shared class calendar"
+                ],
+                color: '#c084fc'
+            },
+            {
+                name: "Health, Breaks & Boundaries",
+                ideas: [
+                    "Add mandatory breaks between classes",
+                    "Mandatory short breaks every 1-2 hours & limit back-to-back meetings",
+                    "Set fixed working hours and disable after-hours notifications"
+                ],
+                color: '#4ade80'
+            }
+        ];
+
+        // Calculate Average Value and Effort for Feature Sets
+        const featureData = features.map(feat => {
+            const relatedIdeas = processedIdeas.filter(i => feat.ideas.includes(i["Top Idea"]));
+            const avgValue = relatedIdeas.reduce((sum, i) => sum + i.value, 0) / relatedIdeas.length;
+            const avgEffort = relatedIdeas.reduce((sum, i) => sum + i.effort, 0) / relatedIdeas.length;
+            
+            return {
+                x: avgEffort,
+                y: avgValue,
+                label: feat.name,
+                backgroundColor: feat.color
+            };
+        });
+
+        // Chart 2: Features Matrix
+        const ctxFeatures = document.getElementById('featuresMatrix').getContext('2d');
+        new Chart(ctxFeatures, {
+            type: 'scatter',
+            data: {
+                datasets: featureData.map(f => ({
+                    label: f.label,
+                    data: [f],
+                    backgroundColor: f.backgroundColor,
+                    pointRadius: 10,
+                    pointHoverRadius: 12
+                }))
+            },
+            options: {
+                ...getChartOptions('Solutions'),
+                plugins: {
+                    ...getChartOptions('Solutions').plugins,
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: { color: '#cbd5e1' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
