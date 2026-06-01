@@ -2794,6 +2794,108 @@
                     <span class="synthesis-theme">📅 Schedule Opacity</span>
                     <span class="synthesis-theme">🏗️ Institutional Inertia</span>
                 </div>
+
+                <!-- Mind Map Image Gallery -->
+                <div style="margin-top:2rem;">
+                    <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--indigo);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+                        <span style="display:inline-block;width:16px;height:2px;background:var(--indigo);border-radius:2px;"></span>
+                        Mind Map Snapshots
+                        <span style="display:inline-block;width:16px;height:2px;background:var(--indigo);border-radius:2px;"></span>
+                    </div>
+                    <style>
+                        .mindmap-gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:0.85rem; }
+                        .mindmap-thumb { position:relative; border-radius:var(--radius); overflow:hidden; border:1px solid rgba(129,140,248,0.2); cursor:zoom-in; aspect-ratio:4/3; background:rgba(0,0,0,0.3); transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s, border-color 0.3s; }
+                        .mindmap-thumb:hover { transform:translateY(-4px) scale(1.02); box-shadow:0 12px 40px rgba(99,102,241,0.25); border-color:rgba(129,140,248,0.5); }
+                        .mindmap-thumb img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.4s ease; }
+                        .mindmap-thumb:hover img { transform:scale(1.06); }
+                        .mindmap-thumb-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(10,10,30,0.7) 0%,transparent 50%); opacity:0; transition:opacity 0.3s; display:flex; align-items:flex-end; padding:0.75rem; }
+                        .mindmap-thumb:hover .mindmap-thumb-overlay { opacity:1; }
+                        .mindmap-thumb-label { font-size:0.72rem; font-weight:600; color:#fff; letter-spacing:0.04em; }
+                        /* Lightbox */
+                        .mindmap-lightbox { position:fixed; inset:0; z-index:9999; background:rgba(5,5,20,0.95); backdrop-filter:blur(16px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+                        .mindmap-lightbox.active { opacity:1; pointer-events:all; }
+                        .mindmap-lightbox-inner { position:relative; max-width:92vw; max-height:90vh; display:flex; flex-direction:column; align-items:center; gap:1rem; }
+                        .mindmap-lightbox-img { max-width:92vw; max-height:82vh; border-radius:var(--radius); box-shadow:0 24px 80px rgba(0,0,0,0.7); object-fit:contain; border:1px solid rgba(129,140,248,0.2); }
+                        .mindmap-lightbox-close { position:absolute; top:-2.5rem; right:0; background:rgba(129,140,248,0.15); border:1px solid rgba(129,140,248,0.3); color:#fff; width:2rem; height:2rem; border-radius:50%; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+                        .mindmap-lightbox-close:hover { background:rgba(129,140,248,0.35); }
+                        .mindmap-lightbox-nav { display:flex; align-items:center; gap:1rem; }
+                        .mindmap-lightbox-btn { background:rgba(129,140,248,0.15); border:1px solid rgba(129,140,248,0.3); color:#fff; padding:0.4rem 1.1rem; border-radius:2rem; font-size:0.8rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+                        .mindmap-lightbox-btn:hover { background:rgba(129,140,248,0.35); }
+                        .mindmap-lightbox-counter { font-size:0.78rem; color:var(--text-muted); min-width:4rem; text-align:center; }
+                    </style>
+                    <div class="mindmap-gallery" id="mindmap-gallery">
+                        <div class="mindmap-thumb" onclick="openMindmapLightbox(0)">
+                            <img src="mindmaps/image1.jpeg" alt="Mind Map 1" loading="lazy">
+                            <div class="mindmap-thumb-overlay"><span class="mindmap-thumb-label">Map 1</span></div>
+                        </div>
+                        <div class="mindmap-thumb" onclick="openMindmapLightbox(1)">
+                            <img src="mindmaps/image2.jpeg" alt="Mind Map 2" loading="lazy">
+                            <div class="mindmap-thumb-overlay"><span class="mindmap-thumb-label">Map 2</span></div>
+                        </div>
+                        <div class="mindmap-thumb" onclick="openMindmapLightbox(2)">
+                            <img src="mindmaps/image3.jpeg" alt="Mind Map 3" loading="lazy">
+                            <div class="mindmap-thumb-overlay"><span class="mindmap-thumb-label">Map 3</span></div>
+                        </div>
+                        <div class="mindmap-thumb" onclick="openMindmapLightbox(3)">
+                            <img src="mindmaps/image4.jpeg" alt="Mind Map 4" loading="lazy">
+                            <div class="mindmap-thumb-overlay"><span class="mindmap-thumb-label">Map 4</span></div>
+                        </div>
+                        <div class="mindmap-thumb" onclick="openMindmapLightbox(4)">
+                            <img src="mindmaps/image5.jpeg" alt="Mind Map 5" loading="lazy">
+                            <div class="mindmap-thumb-overlay"><span class="mindmap-thumb-label">Map 5</span></div>
+                        </div>
+                        <div class="mindmap-thumb" onclick="openMindmapLightbox(5)">
+                            <img src="mindmaps/image6.jpeg" alt="Mind Map 6" loading="lazy">
+                            <div class="mindmap-thumb-overlay"><span class="mindmap-thumb-label">Map 6</span></div>
+                        </div>
+                        <div class="mindmap-thumb" onclick="openMindmapLightbox(6)">
+                            <img src="mindmaps/image7.jpeg" alt="Mind Map 7" loading="lazy">
+                            <div class="mindmap-thumb-overlay"><span class="mindmap-thumb-label">Map 7</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lightbox Modal -->
+                <div class="mindmap-lightbox" id="mindmap-lightbox" onclick="closeMindmapLightbox(event)">
+                    <div class="mindmap-lightbox-inner">
+                        <button class="mindmap-lightbox-close" onclick="closeMindmapLightbox()" id="mindmap-lb-close">✕</button>
+                        <img class="mindmap-lightbox-img" id="mindmap-lb-img" src="" alt="Mind Map">
+                        <div class="mindmap-lightbox-nav">
+                            <button class="mindmap-lightbox-btn" onclick="shiftMindmapLightbox(-1)" id="mindmap-lb-prev">← Prev</button>
+                            <span class="mindmap-lightbox-counter" id="mindmap-lb-counter">1 / 7</span>
+                            <button class="mindmap-lightbox-btn" onclick="shiftMindmapLightbox(1)" id="mindmap-lb-next">Next →</button>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    (function(){
+                        const imgs = ['mindmaps/image1.jpeg','mindmaps/image2.jpeg','mindmaps/image3.jpeg','mindmaps/image4.jpeg','mindmaps/image5.jpeg','mindmaps/image6.jpeg','mindmaps/image7.jpeg'];
+                        let cur = 0;
+                        window.openMindmapLightbox = function(idx){
+                            cur = idx;
+                            document.getElementById('mindmap-lb-img').src = imgs[cur];
+                            document.getElementById('mindmap-lb-counter').textContent = (cur+1)+' / '+imgs.length;
+                            document.getElementById('mindmap-lightbox').classList.add('active');
+                            document.body.style.overflow = 'hidden';
+                        };
+                        window.closeMindmapLightbox = function(e){
+                            if(e && e.target !== document.getElementById('mindmap-lightbox') && e.target !== document.getElementById('mindmap-lb-close')) return;
+                            document.getElementById('mindmap-lightbox').classList.remove('active');
+                            document.body.style.overflow = '';
+                        };
+                        window.shiftMindmapLightbox = function(dir){
+                            cur = (cur + dir + imgs.length) % imgs.length;
+                            document.getElementById('mindmap-lb-img').src = imgs[cur];
+                            document.getElementById('mindmap-lb-counter').textContent = (cur+1)+' / '+imgs.length;
+                        };
+                        document.addEventListener('keydown', function(e){
+                            if(!document.getElementById('mindmap-lightbox').classList.contains('active')) return;
+                            if(e.key==='ArrowRight') window.shiftMindmapLightbox(1);
+                            if(e.key==='ArrowLeft') window.shiftMindmapLightbox(-1);
+                            if(e.key==='Escape') { document.getElementById('mindmap-lightbox').classList.remove('active'); document.body.style.overflow=''; }
+                        });
+                    })();
+                </script>
             </div>
         </div>
     </section>
