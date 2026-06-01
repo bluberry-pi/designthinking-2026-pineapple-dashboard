@@ -2998,37 +2998,151 @@
             </div>
 
             <!-- Value vs Effort Matrix -->
-            <div class="section-label" style="margin-bottom:1.5rem;">Value vs. Effort Analysis</div>
-            <div class="voe-matrix fade-in">
-                <div class="voe-quadrant q-qw">
-                    <div class="voe-quadrant-label">⚡ Quick Wins</div>
-                    <div class="voe-quadrant-sub">High Value · Low Effort</div>
-                    <div class="voe-item">Unified announcement tool (write once, post everywhere)</div>
-                    <div class="voe-item">Mandatory primary platform policy</div>
-                    <div class="voe-item">Dedicated camera angle for online students</div>
-                    <div class="voe-item">Shared digital whiteboard</div>
+            <style>
+                .chart-container {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2rem;
+                    margin-bottom: 3rem;
+                }
+                .matrix-chart {
+                    background: var(--bg-card);
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius-xl);
+                    padding: 2.5rem 2rem 4rem 4rem;
+                }
+                .matrix-title {
+                    font-size: 1.6rem;
+                    font-weight: 700;
+                    color: var(--text-primary);
+                    margin-bottom: 3rem;
+                }
+                .chart-area {
+                    position: relative;
+                    width: 100%;
+                    max-width: 800px;
+                    height: 350px;
+                    border-left: 1px solid rgba(255,255,255,0.1);
+                    border-bottom: 1px solid rgba(255,255,255,0.1);
+                    margin: 0 auto;
+                }
+                .chart-grid-x {
+                    position: absolute;
+                    top: 0; bottom: 0;
+                    border-right: 1px solid rgba(255,255,255,0.03);
+                }
+                .chart-grid-y {
+                    position: absolute;
+                    left: 0; right: 0;
+                    border-top: 1px solid rgba(255,255,255,0.03);
+                }
+                .x-label { position: absolute; bottom: -25px; transform: translateX(-50%); font-size: 0.8rem; color: var(--text-muted); }
+                .y-label { position: absolute; left: -35px; transform: translateY(-50%); font-size: 0.8rem; color: var(--text-muted); }
+                .axis-title-x { position: absolute; bottom: -60px; width: 100%; text-align: center; font-size: 0.85rem; color: var(--text-secondary); }
+                .axis-title-y { position: absolute; left: -65px; top: 50%; transform: translateY(-50%) rotate(-90deg); font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; }
+                
+                .chart-dot {
+                    position: absolute;
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 50%;
+                    transform: translate(-50%, -50%);
+                    z-index: 10;
+                }
+                .chart-dot.large {
+                    width: 24px;
+                    height: 24px;
+                }
+                .dot-blue { background-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+                .dot-purple { background-color: #c084fc; box-shadow: 0 0 10px rgba(192, 132, 252, 0.5); }
+                .dot-green { background-color: #4ade80; box-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
+                
+                .chart-legend {
+                    display: flex;
+                    justify-content: center;
+                    gap: 2rem;
+                    margin-top: 5rem;
+                    flex-wrap: wrap;
+                }
+                .legend-item { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: var(--text-secondary); }
+                .legend-color { width: 2.5rem; height: 1rem; border-radius: 2px; }
+            </style>
+
+            <div class="chart-container fade-in">
+                <!-- Matrix 1 -->
+                <div class="matrix-chart">
+                    <div class="matrix-title">Value vs Effort Matrix (Ideas)</div>
+                    <div class="chart-area">
+                        <!-- Y labels & grid -->
+                        <div class="chart-grid-y" style="top: 0%;"><span class="y-label">3.5</span></div>
+                        <div class="chart-grid-y" style="top: 25%;"><span class="y-label">3.0</span></div>
+                        <div class="chart-grid-y" style="top: 50%;"><span class="y-label">2.5</span></div>
+                        <div class="chart-grid-y" style="top: 75%;"><span class="y-label">2.0</span></div>
+                        <div class="chart-grid-y" style="top: 100%;"><span class="y-label">1.5</span></div>
+                        
+                        <!-- X labels & grid -->
+                        <div class="chart-grid-x" style="left: 0%;"><span class="x-label">0.5</span></div>
+                        <div class="chart-grid-x" style="left: 16.66%;"><span class="x-label">1.0</span></div>
+                        <div class="chart-grid-x" style="left: 33.33%;"><span class="x-label">1.5</span></div>
+                        <div class="chart-grid-x" style="left: 50%;"><span class="x-label">2.0</span></div>
+                        <div class="chart-grid-x" style="left: 66.66%;"><span class="x-label">2.5</span></div>
+                        <div class="chart-grid-x" style="left: 83.33%;"><span class="x-label">3.0</span></div>
+                        <div class="chart-grid-x" style="left: 100%;"><span class="x-label">3.5</span></div>
+                        
+                        <!-- Titles -->
+                        <div class="axis-title-y">Value (Higher is Better)</div>
+                        <div class="axis-title-x">Effort (Lower is Better)</div>
+                        
+                        <!-- Dots (Ideas) -->
+                        <div class="chart-dot dot-blue" style="left: 30%; top: 25%;"></div>
+                        <div class="chart-dot dot-blue" style="left: 31%; top: 22%;"></div>
+                        <div class="chart-dot dot-blue" style="left: 30%; top: 28%;"></div>
+                        <div class="chart-dot dot-blue" style="left: 32%; top: 27%;"></div>
+                        <div class="chart-dot dot-blue" style="left: 35%; top: 22%;"></div>
+                        <div class="chart-dot dot-blue" style="left: 34%; top: 26%;"></div>
+                        <div class="chart-dot dot-blue" style="left: 36%; top: 23%;"></div>
+                        
+                        <div class="chart-dot dot-blue" style="left: 50%; top: 24%;"></div>
+                        <div class="chart-dot dot-blue" style="left: 52%; top: 26%;"></div>
+                    </div>
                 </div>
-                <div class="voe-quadrant q-mp">
-                    <div class="voe-quadrant-label">🚀 Major Projects</div>
-                    <div class="voe-quadrant-sub">High Value · High Effort</div>
-                    <div class="voe-item">Unified course hub platform</div>
-                    <div class="voe-item">AI-powered lesson adapter</div>
-                    <div class="voe-item">Unified participation system</div>
-                    <div class="voe-item">Hybrid classroom redesign</div>
-                </div>
-                <div class="voe-quadrant q-fi">
-                    <div class="voe-quadrant-label">📎 Fill-ins</div>
-                    <div class="voe-quadrant-sub">Low Value · Low Effort</div>
-                    <div class="voe-item">Weekly course digest email</div>
-                    <div class="voe-item">Student onboarding checklist</div>
-                    <div class="voe-item">Platform usage guidelines PDF</div>
-                </div>
-                <div class="voe-quadrant q-tt">
-                    <div class="voe-quadrant-label">🚫 Thankless Tasks</div>
-                    <div class="voe-quadrant-sub">Low Value · High Effort</div>
-                    <div class="voe-item">Facial recognition attendance</div>
-                    <div class="voe-item">Full AI chatbot deployment</div>
-                    <div class="voe-item">Physical seat reservation system</div>
+
+                <!-- Matrix 2 -->
+                <div class="matrix-chart">
+                    <div class="matrix-title">Value vs Effort Matrix (Solutions)</div>
+                    <div class="chart-area">
+                        <!-- Y labels & grid -->
+                        <div class="chart-grid-y" style="top: 0%;"><span class="y-label">3.5</span></div>
+                        <div class="chart-grid-y" style="top: 25%;"><span class="y-label">3.0</span></div>
+                        <div class="chart-grid-y" style="top: 50%;"><span class="y-label">2.5</span></div>
+                        <div class="chart-grid-y" style="top: 75%;"><span class="y-label">2.0</span></div>
+                        <div class="chart-grid-y" style="top: 100%;"><span class="y-label">1.5</span></div>
+                        
+                        <!-- X labels & grid -->
+                        <div class="chart-grid-x" style="left: 0%;"><span class="x-label">0.5</span></div>
+                        <div class="chart-grid-x" style="left: 16.66%;"><span class="x-label">1.0</span></div>
+                        <div class="chart-grid-x" style="left: 33.33%;"><span class="x-label">1.5</span></div>
+                        <div class="chart-grid-x" style="left: 50%;"><span class="x-label">2.0</span></div>
+                        <div class="chart-grid-x" style="left: 66.66%;"><span class="x-label">2.5</span></div>
+                        <div class="chart-grid-x" style="left: 83.33%;"><span class="x-label">3.0</span></div>
+                        <div class="chart-grid-x" style="left: 100%;"><span class="x-label">3.5</span></div>
+                        
+                        <!-- Titles -->
+                        <div class="axis-title-y">Value (Higher is Better)</div>
+                        <div class="axis-title-x">Effort (Lower is Better)</div>
+                        
+                        <!-- Dots (Solutions) -->
+                        <div class="chart-dot large dot-green" style="left: 31.6%; top: 25%;"></div>
+                        <div class="chart-dot large dot-purple" style="left: 35%; top: 22.5%;"></div>
+                        <div class="chart-dot large dot-blue" style="left: 41.6%; top: 25%;"></div>
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="chart-legend">
+                        <div class="legend-item"><div class="legend-color dot-blue"></div> Unified Platforms &amp; Workspaces</div>
+                        <div class="legend-item"><div class="legend-color dot-purple"></div> Calendars &amp; Roadmaps</div>
+                        <div class="legend-item"><div class="legend-color dot-green"></div> Health, Breaks &amp; Boundaries</div>
+                    </div>
                 </div>
             </div>
 
